@@ -8,7 +8,7 @@ from controls.extrair_balancete import extrair_balancete_planos
 def abrir_tela_extrair_balancete():
     janela = tk.Toplevel()
     janela.title("Postalis - GCO/CPF")
-    janela.geometry("500x700")
+    janela.geometry("400x300")
     janela.iconbitmap(caminho_relativo("images/icon_postalis.ico"))
     janela.resizable(False, False)
 
@@ -21,7 +21,7 @@ def abrir_tela_extrair_balancete():
     # ======== Frame Título ========
     frame_titulo = tk.Frame(frame_principal, pady=10)
     frame_titulo.grid(row=0, column=0, sticky="ew")
-    lbl_titulo = tk.Label(frame_titulo, text="Extrair Análise Comparativas - Atena", font=("Arial", 14, "bold"))
+    lbl_titulo = tk.Label(frame_titulo, text="Extrair Balancetes - Atena", font=("Arial", 14, "bold"))
     lbl_titulo.grid(row=0, column=0, sticky="n", pady=5)
 
     # ======== Frame Período (Mês/Ano) ========
@@ -54,6 +54,8 @@ def abrir_tela_extrair_balancete():
         print(f"[INFO] Data inicial: {data_ini}")
         print(f"[INFO] Data final: {data_fim}")
         
+        messagebox.showinfo("INFO", "Esse processo dará início à extração dos balancetes do PGA, Plano BD e PostalPrev.")
+
         extrair_balancete_planos(usuario, senha, data_ini, data_fim)
     
     btn_extrair = tk.Button(frame_botoes, text="Extrair", width=15, command=lambda: abrir_tela_login(login_callback))

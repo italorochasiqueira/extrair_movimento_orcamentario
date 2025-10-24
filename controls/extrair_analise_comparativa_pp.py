@@ -25,7 +25,7 @@ from tkinter import messagebox
 cache_folder = Path(win32com.client.gencache.GetGeneratePath()).parent
 shutil.rmtree(cache_folder, ignore_errors=True)
 
-def extrair_orcamento_atena_plano_pp(usuario: str, senha: str, data_ini: str, data_fim: str):
+def extrair_orcamento_atena_plano_pp(usuario: str, senha: str, data_ini: str, data_fim: str, movimento: "0"):
 
     # Extrair mês e ano das strings recebidas
     mes_inicio, ano_inicio = map(int, data_ini.split("/"))

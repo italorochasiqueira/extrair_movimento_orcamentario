@@ -62,7 +62,7 @@ def abrir_tela_principal():
     lbl_logo.grid(row=0, column=0, pady=(0, 10))
 
     # Título
-    lbl_titulo = tk.Label(frame, text="Sistema Coordenação de Contabilidade", font=("Arial", 16, "bold"))
+    lbl_titulo = tk.Label(frame, text="Sistema Coordenação Planejamento Econômico-Financeira", font=("Arial", 16, "bold"))
     lbl_titulo.grid(row=1, column=0, pady=(0, 15))
 
     janela.mainloop()

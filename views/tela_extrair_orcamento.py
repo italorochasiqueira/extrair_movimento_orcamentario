@@ -10,7 +10,7 @@ from controls.extrair_analise_comparativa_pp import extrair_orcamento_atena_plan
 def abrir_tela_orcamento():
     janela = tk.Toplevel()
     janela.title("Postalis - GCO/CPF")
-    janela.geometry("500x600")
+    janela.geometry("500x500")
     janela.iconbitmap(caminho_relativo("images/icon_postalis.ico"))
     janela.resizable(False, False)
 

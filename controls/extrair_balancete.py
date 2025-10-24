@@ -38,7 +38,9 @@ def extrair_balancete_planos(usuario: str, senha: str, data_ini: str, data_fim: 
     xpath_planos = {
         1: '//*[@id="MainContent_MainContent_fpuBalancete_lbtList_lbxLeft"]/option[1]',  # BD
         3: '//*[@id="MainContent_MainContent_fpuBalancete_lbtList_lbxLeft"]/option[3]',  # Postal Prev
-        5: '//*[@id="MainContent_MainContent_fpuBalancete_lbtList_lbxLeft"]/option[5]'   # PGA
+        4: '//*[@id="MainContent_MainContent_fpuBalancete_lbtList_lbxLeft"]/option[4]',  # Balancete Auxiliar
+        5: '//*[@id="MainContent_MainContent_fpuBalancete_lbtList_lbxLeft"]/option[5]'  # PGA
+
     }
 
     # Caminho correto para o EdgeDriver.exe
@@ -93,7 +95,7 @@ def extrair_balancete_planos(usuario: str, senha: str, data_ini: str, data_fim: 
 
     for periodo_data in periodos:
         data_str = periodo_data.strftime("%m/%Y")
-        for codigo in [1, 3, 5]:
+        for codigo in [1, 3, 4, 5]:
             xpath_plano = xpath_planos.get(codigo)
             if not xpath_plano:
                 continue
@@ -188,6 +190,70 @@ def extrair_balancete_planos(usuario: str, senha: str, data_ini: str, data_fim: 
 
                 base_arquivos.append(df)
 
+                #Limpar a coluna de descrição
+                if 'Descrição' in df.columns:
+                    df['Descrição'] = (
+                        df['Descrição']
+                        .astype(str)
+                        .str.replace("¦", "", regex=False)
+                        .str.strip()
+                        .str.replace(r"\s+", " ", regex=True)
+                    )
+
+                def classificar_plano_contas(codigo):
+                    try:
+                        primeiro = str(codigo).split('.')[0]
+                        if primeiro == '1':
+                            return "Ativo"
+                        elif primeiro == '2':
+                            return "Passivo"
+                        elif primeiro == '3':
+                            return "Gestão Previdencial"
+                        elif primeiro == '4':
+                            return "Plano Gestão Administrativa"
+                        elif primeiro == '5':
+                            return "Investimentos"
+                        else:
+                            return "Não Classificado"
+                    except:
+                        return "Não Identificado"
+                    
+                df['Plano de Contas'] = df['Conta Contábil'].apply(classificar_plano_contas)
+
+                def calcular_nivel(codigo):
+                    try:
+                        partes = str(codigo).split('.')
+                        nivel = 0
+                        for parte in partes:
+                            if parte != "00":
+                                nivel += 1
+                            else:
+                                break
+                        return nivel
+                    except:
+                        return None
+                    
+                df['Nível'] = df['Conta Contábil'].apply(calcular_nivel)
+
+                def criar_hierarquia_vetorizada(df):
+                    df = df.copy()
+                    df_niveis = pd.DataFrame(index=df.index)
+                    max_niveis = df['Nível'].max()
+                    for i in range(1, max_niveis + 1):
+                        df_niveis[f'Nível {i}'] = None
+                    ultimos_valores = [None] * max_niveis
+                    for idx, row in df.iterrows():
+                        nivel_atual = row['Nível']
+                        descricao = row['Descrição']
+                        if nivel_atual > 0:
+                            ultimos_valores[nivel_atual - 1] = descricao
+                        for i in range(nivel_atual):
+                            df_niveis.at[idx, f'Nível {i+1}'] = ultimos_valores[i]
+                    df = pd.concat([df, df_niveis], axis=1)
+                    return df
+
+                #base_arquivos.append(df)
+
                 print(f"[DEBUG] Arquivo processado com sucesso: {os.path.basename(arquivo_mais_recente)}")
 
             except Exception as e:
@@ -199,6 +265,7 @@ def extrair_balancete_planos(usuario: str, senha: str, data_ini: str, data_fim: 
 
     if base_arquivos:
         df_final = pd.concat(base_arquivos, ignore_index=True)
+        df_final = criar_hierarquia_vetorizada(df_final)
         print(df_final.head())  # Exibe os primeiros registros como conferência
 
         # Caminho para Downloads do usuário atual
