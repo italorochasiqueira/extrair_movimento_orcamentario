@@ -28,13 +28,13 @@ def abrir_tela_login(callback):
     lbl_titulo.grid(row=0, column=0, columnspan=4, pady=5)
 
     #Usuário
-    lbl_usuario = tk.Label(frame, text="Usuário:")
+    lbl_usuario = tk.Label(frame, text="Usuário:", font=("Arial", 10, "bold"))
     lbl_usuario.grid(row=1, column=0, sticky="e", pady=5)
     entrada_usuario = tk.Entry(frame, width=30)
     entrada_usuario.grid(row=1, column=1, columnspan=2, pady=5)
 
     # Senha
-    lbl_senha = tk.Label(frame, text="Senha:")
+    lbl_senha = tk.Label(frame, text="Senha:", font=("Arial", 10, "bold"))
     lbl_senha.grid(row=2, column=0, sticky="e", pady=5)
     entrada_senha = tk.Entry(frame, width=30, show="*")
     entrada_senha.grid(row=2, column=1, columnspan=2, pady=5)
@@ -49,11 +49,23 @@ def abrir_tela_login(callback):
         else:
             messagebox.showerror("Erro", "Preencha usuário e senha.")
 
-    btn_login = tk.Button(frame, text="Entrar", width=12, command=realizar_login)
-    btn_login.grid(row=3, column=1, pady=20)
+    btn_login = tk.Button(frame, 
+                          text="Entrar", 
+                          width=18, 
+                          command=realizar_login,
+                          height=2, 
+                          activebackground="#33D05A", 
+                          activeforeground="white")
+    btn_login.grid(row=3, column=0, columnspan=2, pady=5)
 
-    btn_sair = tk.Button(frame, text="Sair", width=12, command=janela.destroy)
-    btn_sair.grid(row=3, column=2, pady=20)
+    btn_sair = tk.Button(frame, 
+                         text="Sair", 
+                         width=18, 
+                         command=janela.destroy,
+                         height=2,
+                         activebackground="#AD5E62",
+                         activeforeground="white")
+    btn_sair.grid(row=3, column=2, columnspan=2, pady=5)
 
     janela.grab_set()
 
