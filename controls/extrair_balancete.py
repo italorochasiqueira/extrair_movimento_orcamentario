@@ -5,8 +5,10 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from tkinter import messagebox
 from pathlib import Path
+from datetime import datetime
 import time
 import os
+import shutil
 import pandas as pd
 import re
 
@@ -28,7 +30,6 @@ def extrair_balancete_planos(usuario: str, senha: str, data_ini: str, data_fim: 
         'DEZ': '12'
     }
 
-
     periodos = pd.date_range(start=data_ini, end=data_fim, freq="MS")
 
     # Preenche os campos de login
@@ -40,7 +41,6 @@ def extrair_balancete_planos(usuario: str, senha: str, data_ini: str, data_fim: 
         3: '//*[@id="MainContent_MainContent_fpuBalancete_lbtList_lbxLeft"]/option[3]',  # Postal Prev
         4: '//*[@id="MainContent_MainContent_fpuBalancete_lbtList_lbxLeft"]/option[4]',  # Balancete Auxiliar
         5: '//*[@id="MainContent_MainContent_fpuBalancete_lbtList_lbxLeft"]/option[5]'  # PGA
-
     }
 
     # Caminho correto para o EdgeDriver.exe
@@ -59,7 +59,6 @@ def extrair_balancete_planos(usuario: str, senha: str, data_ini: str, data_fim: 
     url = 'https://financeiro.postalis.org.br/ControleAcesso/login/Login.aspx'
     driver.get(url)
 
-
     wait.until(EC.presence_of_element_located((By.NAME, "ctl00$MainContent$lgnLogin$UserName"))).send_keys(usuario_login)
     print(f"[INFO] Usuário identificado: {usuario_login}")
     driver.find_element(By.NAME, "ctl00$MainContent$lgnLogin$Password").send_keys(senha_login)
@@ -69,29 +68,19 @@ def extrair_balancete_planos(usuario: str, senha: str, data_ini: str, data_fim: 
 
     # Aguarda o botão de "Contabilidade" estar visível e clica
     wait.until(EC.element_to_be_clickable((By.NAME, "ctl00$MainContent$imbContabilidade"))).click()
-
-
     wait.until(EC.element_to_be_clickable((By.NAME, "ctl00$MainContent$imbContabilidade"))).click()
 
     # Aguarda o ícone da árvore estar presente
-    wait.until(EC.element_to_be_clickable(
-        (By.XPATH, '//*[@id="MenuContent_tvwMenut96"]')
-    )).click()
+    wait.until(EC.element_to_be_clickable((By.XPATH, '//*[@id="MenuContent_tvwMenut96"]'))).click()
 
     #Abrir Menu "Operacionais"
-    wait.until(EC.element_to_be_clickable(
-        (By.XPATH, '//*[@id="MenuContent_tvwMenut97"]')
-    )).click()
+    wait.until(EC.element_to_be_clickable((By.XPATH, '//*[@id="MenuContent_tvwMenut97"]'))).click()
 
     #Abrir menu dos Balancetes
-    wait.until(EC.element_to_be_clickable(
-        (By.XPATH, '//*[@id="MenuContent_tvwMenut99"]')
-    )).click()
-
-
-    wait.until(EC.element_to_be_clickable(
-        (By.XPATH, '//*[@id="MenuContent_tvwMenut100"]')
-    )).click()
+    wait.until(EC.element_to_be_clickable((By.XPATH, '//*[@id="MenuContent_tvwMenut99"]'))).click()
+   
+    #Clicar na opção "Contábil"
+    wait.until(EC.element_to_be_clickable((By.XPATH, '//*[@id="MenuContent_tvwMenut100"]'))).click()
 
     for periodo_data in periodos:
         data_str = periodo_data.strftime("%m/%Y")
@@ -112,53 +101,46 @@ def extrair_balancete_planos(usuario: str, senha: str, data_ini: str, data_fim: 
             )
 
             # Abrir o botão de seleção novamente
-            wait.until(EC.presence_of_element_located(
-                (By.XPATH, '//*[@id="MainContent_MainContent_fpuBalancete_lnkSelecionado"]')
-            ))
-            wait.until(EC.element_to_be_clickable(
-                (By.XPATH, '//*[@id="MainContent_MainContent_fpuBalancete_lnkSelecionado"]')
-            )).click()
+            wait.until(EC.presence_of_element_located((By.XPATH, '//*[@id="MainContent_MainContent_fpuBalancete_lnkSelecionado"]')))
+            wait.until(EC.element_to_be_clickable((By.XPATH, '//*[@id="MainContent_MainContent_fpuBalancete_lnkSelecionado"]'))).click()
 
             # Seleciona o plano
             wait.until(EC.presence_of_element_located((By.XPATH, xpath_plano)))
             wait.until(EC.element_to_be_clickable((By.XPATH, xpath_plano))).click()
 
             # Clica em Adicionar
-            wait.until(EC.element_to_be_clickable(
-                (By.XPATH, '//*[@id="MainContent_MainContent_fpuBalancete_lbtList_btnAdd"]')
-            )).click()
+            wait.until(EC.element_to_be_clickable((By.XPATH, '//*[@id="MainContent_MainContent_fpuBalancete_lbtList_btnAdd"]'))).click()
 
             # Clica em Cancelar para sair da tela de seleção
-            wait.until(EC.element_to_be_clickable(
-                (By.XPATH, '//*[@id="MainContent_MainContent_fpuBalancete_btnCancelar"]')
-            )).click()
+            wait.until(EC.element_to_be_clickable((By.XPATH, '//*[@id="MainContent_MainContent_fpuBalancete_btnCancelar"]'))).click()
 
             # Exporta
-            exportar_btn = wait.until(EC.element_to_be_clickable(
-                (By.ID, 'MainContent_MainContent_btnExportar')
-            ))
+            exportar_btn = wait.until(EC.element_to_be_clickable((By.ID, 'MainContent_MainContent_btnExportar')))
             driver.execute_script("arguments[0].click();", exportar_btn)
 
+             #Clicar novamente na opção "Contábil" para o Loop
+            wait.until(EC.element_to_be_clickable((By.XPATH, '//*[@id="MenuContent_tvwMenut100"]'))).click()
+
+            # dê um pequeno tempo para o download começar/concluir
             time.sleep(5)
 
-            print("[DEBUG] Download finalizado e arquivo movido com sucesso!")
-
-            wait.until(EC.element_to_be_clickable(
-                (By.XPATH, '//*[@id="MenuContent_tvwMenut100"]')
-            )).click()
-
-            print("Código chegou no final")
-
-            pasta_download = os.path.join(os.path.expanduser("~"), "Downloads")
-
-            arquivos_xlsx = [os.path.join(pasta_download, f) for f in os.listdir(pasta_download) if f.endswith('.xlsx')]
-            if not arquivos_xlsx:
-                print("[ERRO] Nenhum arquivo .xlsx encontrado.")
-                continue
-
-            arquivo_mais_recente = max(arquivos_xlsx, key=os.path.getctime)
+            print("[DEBUG] Download finalizado -- procurando arquivo .xlsx mais recente em Downloads")
 
             try:
+                pasta_download = os.path.join(os.path.expanduser("~"), "Downloads")
+                arquivos_xlsx = [os.path.join(pasta_download, f) for f in os.listdir(pasta_download) if f.lower().endswith('.xlsx')]
+                if not arquivos_xlsx:
+                    print("[ERRO] Nenhum arquivo .xlsx encontrado.")
+                    continue
+
+                arquivo_mais_recente = max(arquivos_xlsx, key=os.path.getctime)
+
+                # Salvar os arquivos na pasta de extração (move)
+                novo_caminho = os.path.join(pasta_download, os.path.basename(arquivo_mais_recente))
+                shutil.move(arquivo_mais_recente, novo_caminho)   # mais robusto que os.replace
+                arquivo_mais_recente = novo_caminho
+
+                # agora processa o arquivo já movido
                 df_raw = pd.read_excel(arquivo_mais_recente, header=None)
                 linha_periodo = df_raw.iloc[1, 0]
                 match_periodo = re.search(r"([A-Za-z]{3})/(\d{4})", linha_periodo)
@@ -173,7 +155,7 @@ def extrair_balancete_planos(usuario: str, senha: str, data_ini: str, data_fim: 
                 plano = match_plano.group(1) if match_plano else "PLANO NÃO IDENTIFICADO"
 
                 df = pd.read_excel(arquivo_mais_recente, header=4)
-                
+
                 # Função que transforma data "ABR/2025" em "01/04/2025"
                 def converter_para_data_completa(data_str):
                     mes_abrev, ano = data_str.split('/')
@@ -252,14 +234,12 @@ def extrair_balancete_planos(usuario: str, senha: str, data_ini: str, data_fim: 
                     df = pd.concat([df, df_niveis], axis=1)
                     return df
 
-                #base_arquivos.append(df)
-
                 print(f"[DEBUG] Arquivo processado com sucesso: {os.path.basename(arquivo_mais_recente)}")
 
             except Exception as e:
                 print(f"[ERRO] Falha ao processar o arquivo: {e}")
             
-            print(f"[INFO] Perído {data_str} extraído!")
+            print(f"[INFO] Período {data_str} extraído!")
 
     driver.quit()
 
@@ -268,14 +248,13 @@ def extrair_balancete_planos(usuario: str, senha: str, data_ini: str, data_fim: 
         df_final = criar_hierarquia_vetorizada(df_final)
         print(df_final.head())  # Exibe os primeiros registros como conferência
 
-        # Caminho para Downloads do usuário atual
-        pasta_download = os.path.join(os.path.expanduser("~"), "Downloads")
         caminho_saida = os.path.join(pasta_download, "balancetes_consolidados.xlsx")
 
-        # Salva no Downloads
+        # Salva no diretório de extração
         df_final.to_excel(caminho_saida, index=False)
         print(f"[INFO] Arquivo salvo em: {caminho_saida}")
 
-    messagebox.showinfo("Aviso","Extração concluída com sucesso!")
-
-
+    messagebox.showinfo(
+        "Aviso",
+        f"Extração concluída com sucesso!\n\nArquivos salvos em:\n{pasta_download}"
+    )

@@ -224,7 +224,7 @@ def extrair_orcamento_atena_plano_pp(usuario: str, senha: str, data_ini: str, da
                     print(f"[ERRO] Falha ao clicar no botão salvar (td): {e}")
                     continue
 
-                time.sleep(5)
+                time.sleep(8)
 
                 # Processamento do arquivo Excel
                 usuario_caminho = os.getlogin()

@@ -21,30 +21,33 @@ from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.common.keys import Keys
 from tkinter import messagebox
 
-# Limpa cache corrompido do win32com
+# === LIMPA CACHE CORROMPIDO DO WIN32COM ===
 cache_folder = Path(win32com.client.gencache.GetGeneratePath()).parent
 shutil.rmtree(cache_folder, ignore_errors=True)
 
+
 def extrair_orcamento_atena_plano_bd(usuario: str, senha: str, data_ini: str, data_fim: str, movimento: "0"):
 
-    # Extrair mês e ano das strings recebidas
+    # === EXTRAI MÊS E ANO DAS STRINGS RECEBIDAS ===
     mes_inicio, ano_inicio = map(int, data_ini.split("/"))
     mes_fim, ano_fim = map(int, data_fim.split("/"))
 
-    # Criar datas para o loop
     data_atual = datetime(ano_inicio, mes_inicio, 1)
     data_limite = datetime(ano_fim, mes_fim, 1)
 
-    print(f"[DEBUG - Extrair Orçamento] Meses para apuração da extração: {data_atual.strftime('%m/%Y')} a {data_limite.strftime('%m/%Y')}")
-    # Lista para guardar todos os dataframes
+    print(f"[DEBUG] Meses para apuração da extração: {data_atual.strftime('%m/%Y')} a {data_limite.strftime('%m/%Y')}")
     todos_dfs = []
 
-    # Caminho correto para o EdgeDriver.exe
+    # === CAMINHOS E PASTAS ===
     caminho_executavel = Path(__file__).resolve().parents[1]
     caminho_driver = caminho_executavel / "drivers" / "msedgedriver.exe"
-    print(f'[DEBUG - Extrair Orçamento] Caminho do executável driver: {caminho_executavel}')
+    usuario_caminho = os.getlogin()
+
+    # === PASTA DE DOWNLOADS ===
+    pasta_downloads = Path.home() / "Downloads"
+
+    print(f"[DEBUG] Edge configurado para baixar em: {pasta_downloads}")
     
-    # Inicializa o navegador Edge
     service = Service(executable_path=caminho_driver)
     edge_options = Options()
     edge_options.add_argument("--disable-popup-blocking")
@@ -57,56 +60,48 @@ def extrair_orcamento_atena_plano_bd(usuario: str, senha: str, data_ini: str, da
     wait = WebDriverWait(driver, 50)
 
     try:
-        # === Login e navegação inicial ===
+        # === LOGIN ===
         data_login = f"{mes_inicio:02d}/{ano_inicio}"
         ultimo_dia = calendar.monthrange(int(ano_fim), int(mes_fim))[1]
         data_fim = f"{mes_fim:02d}/{ano_fim}"
 
-        print(f"Filtrando entre {data_login} e {data_fim}...")
+        print(f"[DEBUG] Filtrando entre {data_login} e {data_fim}...")
 
-        # Abre a URL de login
         url = 'https://financeiro.postalis.org.br/ControleAcesso/login/Login.aspx'
         driver.get(url)
 
-        # Preenche os campos de login
-        usuario_login = usuario
-        senha_login = senha
-
-        wait.until(EC.presence_of_element_located((By.NAME, "ctl00$MainContent$lgnLogin$UserName"))).send_keys(usuario_login)
-        driver.find_element(By.NAME, "ctl00$MainContent$lgnLogin$Password").send_keys(senha_login)
+        wait.until(EC.presence_of_element_located((By.NAME, "ctl00$MainContent$lgnLogin$UserName"))).send_keys(usuario)
+        driver.find_element(By.NAME, "ctl00$MainContent$lgnLogin$Password").send_keys(senha)
         driver.find_element(By.NAME, "ctl00$MainContent$lgnLogin$LoginButton").click()
         print("[DEBUG] Login enviado.")
 
         time.sleep(2)
-        print("[DEBUG] URL atual após login:", driver.current_url)
+        print("[DEBUG] URL após login:", driver.current_url)
 
+        # === NAVEGAÇÃO NO SISTEMA ===
         try:
             botao = wait.until(EC.presence_of_element_located((By.NAME, "ctl00$MainContent$imbOrcamento")))
-            print("[DEBUG] Botão 'Orçamento' encontrado.")
             driver.execute_script("arguments[0].scrollIntoView(true);", botao)
             time.sleep(0.5)
             driver.execute_script("arguments[0].click();", botao)
+            print("[DEBUG] Botão 'Orçamento' clicado com sucesso.")
             #2ª tentativa de acesso
             botao = wait.until(EC.presence_of_element_located((By.NAME, "ctl00$MainContent$imbOrcamento")))
-            print("[DEBUG] Botão 'Orçamento' encontrado.")
             driver.execute_script("arguments[0].scrollIntoView(true);", botao)
             time.sleep(0.5)
             driver.execute_script("arguments[0].click();", botao)
-            print("[DEBUG] Clique executado com sucesso.")
+            print("[DEBUG] Botão 'Orçamento' clicado com sucesso pela segunda vez.")
         except Exception as e:
-            print("[ERRO] Não encontrou ou não conseguiu clicar no botão 'Orçamento':", e)
+            print("[ERRO] Não conseguiu clicar em 'Orçamento':", e)
             driver.quit()
             sys.exit()
 
         try:
             menu_relatorios = wait.until(EC.presence_of_element_located((By.ID, "MenuContent_tvwMenut55")))
-            print("[DEBUG] Menu 'Relatórios' encontrado.")
-            driver.execute_script("arguments[0].scrollIntoView(true);", menu_relatorios)
-            time.sleep(0.5)
             driver.execute_script("arguments[0].click();", menu_relatorios)
-            print("[DEBUG] Menu 'Relatórios' clicado com sucesso.")
+            print("[DEBUG] Menu 'Relatórios' clicado.")
         except Exception as e:
-            print("[ERRO] Não conseguiu encontrar ou clicar no menu 'Relatórios':", e)
+            print("[ERRO] Falha ao clicar em 'Relatórios':", e)
             driver.quit()
             sys.exit()
 
@@ -119,31 +114,23 @@ def extrair_orcamento_atena_plano_bd(usuario: str, senha: str, data_ini: str, da
             driver.quit()
             sys.exit()
 
-        # === Laço para processar cada mês ===
+        # === LOOP DE MESES ===
         while data_atual <= data_limite:
             try:
                 data_inicio = f"{data_atual.month:02d}/{data_atual.year}"
-                
-                # Esperar e clicar em Análise Comparativa
-                try:
-                    time.sleep(1)
-                    menu_analise_comparativa = wait.until(EC.presence_of_element_located((By.ID, "MenuContent_tvwMenut67")))
-                    driver.execute_script("arguments[0].click();", menu_analise_comparativa)
-                    print("[DEBUG] Submenu 'Realizado' clicado.")
-                except Exception as e:
-                    print("[ERRO] Falha ao clicar em 'Realizado':", e)
-                    continue
-                
+
+                time.sleep(1)
+                menu_analise_comparativa = wait.until(EC.presence_of_element_located((By.ID, "MenuContent_tvwMenut67")))
+                driver.execute_script("arguments[0].click();", menu_analise_comparativa)
+                print("[DEBUG] Submenu 'Realizado' clicado.")
+
                 time.sleep(2)
-                # Preencher o valor no campo e disparar o evento de "blur"
                 campo_data = driver.find_element(By.ID, "MainContent_MainContent_dbData")
                 driver.execute_script("arguments[0].value = arguments[1];", campo_data, data_inicio)
                 driver.execute_script("arguments[0].dispatchEvent(new Event('blur'));", campo_data)
-                print(f"[DEBUG] Data inserida com sucesso: {data_inicio}")
+                print(f"[DEBUG] Data inserida: {data_inicio}")
 
-                time.sleep(5)
-
-                # Aguarda o combo estar disponível para escolher o orçamento
+                time.sleep(3)
                 select_element = wait.until(EC.presence_of_element_located((By.ID, "MainContent_MainContent_ddlVersao")))
                 select = Select(select_element)
                 opcoes = [(int(opt.get_attribute("value")), opt.text) for opt in select.options if opt.get_attribute("value").isdigit()]
@@ -151,24 +138,21 @@ def extrair_orcamento_atena_plano_bd(usuario: str, senha: str, data_ini: str, da
                 select.select_by_value(str(maior_valor))
                 print(f"[DEBUG] Tipo de orçamento escolhido: {maior_valor}")
 
-                time.sleep(5)
+                time.sleep(3)
                 driver.execute_script("""
                     const ddl = document.getElementById('MainContent_MainContent_ddlBalancete');
                     ddl.value = '1';
                     ddl.dispatchEvent(new Event('change', { bubbles: true }));
                 """)
-                print("[DEBUG] Plano 01 - Plano BD escolhido.")
+                print("[DEBUG] Plano 01 - Plano BD selecionado.")
 
-                time.sleep(2)
-
-                # Selecionar opção "Contábil"
                 radio_contabil = wait.until(EC.presence_of_element_located((By.ID, "MainContent_MainContent_rblTipoRealizacao_0")))
                 radio_contabil.click()
-                print("[DEBUG] Opção 'Contábil' selecionada.")
+                print("[DEBUG] Opção 'Contábil' marcada.")
 
                 botao_imprimir = wait.until(EC.element_to_be_clickable((By.ID, "MainContent_MainContent_btnImprimir")))
                 botao_imprimir.click()
-                print("[DEBUG] Botão 'Imprimir' clicado com sucesso.")
+                print("[DEBUG] Botão 'Imprimir' clicado.")
 
                 # Captura janelas existentes antes do clique
                 handles_antes = driver.window_handles
@@ -224,7 +208,7 @@ def extrair_orcamento_atena_plano_bd(usuario: str, senha: str, data_ini: str, da
                     print(f"[ERRO] Falha ao clicar no botão salvar (td): {e}")
                     continue
 
-                time.sleep(5)
+                time.sleep(8)
 
                 # Processamento do arquivo Excel
                 usuario_caminho = os.getlogin()
