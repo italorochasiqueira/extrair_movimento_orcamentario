@@ -1,0 +1,37 @@
+<eFinanceira xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.eFinanceira.gov.br/schemas/retornoLoteEventosAssincrono/v1_0_0">
+	<retornoLoteEventosAssincrono id="IDFD955C5046BD15232206C96FEB9503C3">
+		<cnpjDeclarante>00627638000157</cnpjDeclarante>
+		<status>
+			<cdResposta>7</cdResposta>
+			<descResposta>Lote não recebido - Verificar ocorrências.</descResposta>
+			<ocorrencias>
+				<ocorrencia>
+					<codigo>MS0041</codigo>
+					<descricao>Erro na estrutura do xml do lote criptografado. Esquema de lote inválido.</descricao>
+					<tipo>1</tipo>
+					<localizacao/>
+				</ocorrencia>
+			</ocorrencias>
+		</status>
+	</retornoLoteEventosAssincrono>
+	<Signature xmlns="http://www.w3.org/2000/09/xmldsig#">
+		<SignedInfo>
+			<CanonicalizationMethod Algorithm="http://www.w3.org/TR/2001/REC-xml-c14n-20010315"/>
+			<SignatureMethod Algorithm="http://www.w3.org/2001/04/xmldsig-more#rsa-sha256"/>
+			<Reference URI="#IDFD955C5046BD15232206C96FEB9503C3">
+				<Transforms>
+					<Transform Algorithm="http://www.w3.org/2000/09/xmldsig#enveloped-signature"/>
+					<Transform Algorithm="http://www.w3.org/TR/2001/REC-xml-c14n-20010315"/>
+				</Transforms>
+				<DigestMethod Algorithm="http://www.w3.org/2001/04/xmlenc#sha256"/>
+				<DigestValue>6lA8zMNDPNgz2m7ds4/s7xTduuIi97IaHBGalmjZkCs=</DigestValue>
+			</Reference>
+		</SignedInfo>
+		<SignatureValue>TESTE</SignatureValue>
+		<KeyInfo>
+			<X509Data>
+				<X509Certificate>TESTE</X509Certificate>
+			</X509Data>
+		</KeyInfo>
+	</Signature>
+</eFinanceira>
