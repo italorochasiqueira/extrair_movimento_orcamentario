@@ -16,32 +16,32 @@ def abrir_tela_principal():
 
     menubar = tk.Menu(janela)
     menu_principal = tk.Menu(menubar, tearoff=0)
-    menu_principal.add_command(label="Parâmetros", command=...)
-    menu_principal.add_separator()
+    # menu_principal.add_command(label="Parâmetros", command=...)
+    # menu_principal.add_separator()
     menu_principal.add_command(label="Sair", command=janela.destroy)
 
     menubar.add_cascade(label="Menu", menu=menu_principal)
 
-    menu_previdenciario = tk.Menu(menubar, tearoff=0)
-    menu_previdenciario.add_command(label="Extrair Análise Comparativa", command=abrir_tela_orcamento)
-    menu_previdenciario.add_command(label="Importar Integração Contábil", command=...)
+    menu_orcamentario = tk.Menu(menubar, tearoff=0)
+    menu_orcamentario.add_command(label="Extrair Análise Comparativa", command=abrir_tela_orcamento)
+    # menu_orcamentario.add_command(label="Importar Integração Contábil", command=...)
     
-    menu_previdenciario.add_separator()
-    menu_relatorio_prev = tk.Menu(menu_previdenciario, tearoff=0)
-    menu_previdenciario.add_cascade(label="Relatórios", menu=menu_relatorio_prev)
-    menubar.add_cascade(label="Orçamento", menu=menu_previdenciario)
+    # menu_orcamentario.add_separator()
+    # menu_relatorio_prev = tk.Menu(menu_orcamentario, tearoff=0)
+    # menu_orcamentario.add_cascade(label="Relatórios", menu=menu_relatorio_prev)
+    menubar.add_cascade(label="Orçamento", menu=menu_orcamentario)
 
      
     menu_contabil = tk.Menu(menubar, tearoff=0)
     menu_contabil.add_command(label="Extrair Movimento", command=abrir_tela_extrair_balancete)
-    menu_contabil.add_separator()
+    # menu_contabil.add_separator()
 
-    #sub-menu relatórios
-    menu_relatorios = tk.Menu(menu_contabil, tearoff=0)
-    menu_relatorios.add_command(label="Rel. Balancete", command=...)
-    menu_relatorios.add_command(label="Rel. Razão", command=...)
+    # #sub-menu relatórios
+    # menu_relatorios = tk.Menu(menu_contabil, tearoff=0)
+    # menu_relatorios.add_command(label="Rel. Balancete", command=...)
+    # menu_relatorios.add_command(label="Rel. Razão", command=...)
 
-    menu_contabil.add_cascade(label="Relatórios", menu=menu_relatorios)
+    # menu_contabil.add_cascade(label="Relatórios", menu=menu_relatorios)
     menubar.add_cascade(label="Movimento Contábil", menu=menu_contabil)
 
     janela.config(menu=menubar)
@@ -62,7 +62,7 @@ def abrir_tela_principal():
     lbl_logo.grid(row=0, column=0, pady=(0, 10))
 
     # Título
-    lbl_titulo = tk.Label(frame, text="Sistema Coordenação Planejamento Econômico-Financeira", font=("Arial", 16, "bold"))
+    lbl_titulo = tk.Label(frame, text="Extração Dados Relatório Operacional", font=("Arial", 16, "bold"))
     lbl_titulo.grid(row=1, column=0, pady=(0, 15))
 
     janela.mainloop()

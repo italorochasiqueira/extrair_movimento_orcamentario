@@ -112,6 +112,7 @@ def extrair_balancete_planos(usuario: str, senha: str, data_ini: str, data_fim: 
             wait.until(EC.element_to_be_clickable((By.XPATH, '//*[@id="MainContent_MainContent_fpuBalancete_lbtList_btnAdd"]'))).click()
 
             # Clica em Cancelar para sair da tela de seleção
+            time.sleep(2)
             wait.until(EC.element_to_be_clickable((By.XPATH, '//*[@id="MainContent_MainContent_fpuBalancete_btnCancelar"]'))).click()
 
             # Exporta

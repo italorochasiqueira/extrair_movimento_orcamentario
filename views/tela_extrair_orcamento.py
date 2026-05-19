@@ -17,35 +17,37 @@ def abrir_tela_orcamento():
     # Frame principal
     frame_principal = tk.Frame(janela, padx=20, pady=20)
     frame_principal.grid(row=0, column=0, sticky="nsew")
+    frame_principal.place(relx=0.5, rely=0.5, anchor="center")
     janela.grid_rowconfigure(0, weight=1)
     janela.grid_columnconfigure(0, weight=1)
 
     # ======== Frame Título ========
     frame_titulo = tk.Frame(frame_principal, pady=10)
     frame_titulo.grid(row=0, column=0, sticky="ew")
-    lbl_titulo = tk.Label(frame_titulo, text="Extrair Análise Comparativas - Atena", font=("Arial", 14, "bold"))
-    lbl_titulo.grid(row=0, column=0, sticky="n", pady=5)
+    frame_titulo.columnconfigure(0, weight=1)
+    lbl_titulo = tk.Label(frame_titulo, text="Extrair Análise Comparativa - Atena", font=("Arial", 14, "bold"))
+    lbl_titulo.grid(row=0, column=0, sticky="ew", pady=5)
 
     # ======== Frame Período (Mês/Ano) ========
-    frame_data = tk.LabelFrame(frame_principal, text="Período (Mês/Ano)", padx=10, pady=10)
+    frame_data = tk.LabelFrame(frame_principal, text="Período (Mês/Ano)", padx=10, pady=10, font=("Arial", 10, "bold"))
     frame_data.grid(row=1, column=0, pady=10, sticky="ew")
 
     # Data Inicial
     tk.Label(frame_data, text="Data Inicial:").grid(row=0, column=0, padx=5, pady=5)
-    mes_inicio = tk.Entry(frame_data, width=7)
+    mes_inicio = tk.Entry(frame_data, width=7, justify="center")
     mes_inicio.grid(row=0, column=1, padx=5)
-    ano_inicio = tk.Entry(frame_data, width=7)
+    ano_inicio = tk.Entry(frame_data, width=7, justify="center")
     ano_inicio.grid(row=0, column=2, padx=5)
 
     # Data Final
     tk.Label(frame_data, text="Data Final:").grid(row=1, column=0, padx=5, pady=5)
-    mes_fim = tk.Entry(frame_data, width=7)
+    mes_fim = tk.Entry(frame_data, width=7, justify="center")
     mes_fim.grid(row=1, column=1, padx=5)
-    ano_fim = tk.Entry(frame_data, width=7)
+    ano_fim = tk.Entry(frame_data, width=7, justify="center")
     ano_fim.grid(row=1, column=2, padx=5)
 
     # ======== Frame Tipo de Plano ========
-    frame_plano = tk.LabelFrame(frame_principal, text="Selecionar Plano", padx=10, pady=10)
+    frame_plano = tk.LabelFrame(frame_principal, text="Selecionar Plano", padx=10, pady=10, font=("Arial", 10, "bold"))
     frame_plano.grid(row=2, column=0, pady=10, sticky="ew")
     plano_var = tk.StringVar(value="PGA")
 
@@ -57,8 +59,8 @@ def abrir_tela_orcamento():
     rdb_postalprev.grid(row=0, column=2, padx=10, pady=5, sticky="w")
 
     # ======== Frame Movimento Contábil/Financeiro ========
-    frame_movimento = tk.LabelFrame(frame_principal, text="Selecionar Tipo de Realização", padx=10, pady=10)
-    frame_movimento.grid(row=3, column=0, pady=15, sticky="ew")
+    frame_movimento = tk.LabelFrame(frame_principal, text="Selecionar Tipo de Realização", padx=10, pady=10, font=("Arial", 10, "bold"))
+    frame_movimento.grid(row=3, column=0, pady=10, sticky="ew")
     movimento_var = tk.StringVar(value="0")
 
     rdb_contabil = tk.Radiobutton(frame_movimento, text="Contábil", variable=movimento_var, value="0")
@@ -100,10 +102,32 @@ def abrir_tela_orcamento():
         except Exception as e:
             messagebox.showerror("Erro", f"Ocorreu um erro na importação: {e}")
 
-    btn_extrair = tk.Button(frame_botoes, text="Extrair", width=15, command=importar_arquivos)
+    btn_extrair = tk.Button(
+    frame_botoes,
+    text="Extrair",
+    width=15,
+    bg="#2e8b57",      # Verde
+    fg="white",
+    activebackground="#246b45",
+    activeforeground="white",
+    relief="flat",
+    command=importar_arquivos,
+    cursor="hand2"
+    )
     btn_extrair.grid(row=0, column=0, padx=10)
 
-    btn_sair = tk.Button(frame_botoes, text="Sair", width=15, command=janela.destroy)
+    btn_sair = tk.Button(
+    frame_botoes,
+    text="Sair",
+    width=15,
+    bg="#b22222",      # Vermelho
+    fg="white",
+    activebackground="#8b1a1a",
+    activeforeground="white",
+    relief="flat",
+    command=janela.destroy,
+    cursor="hand2"
+    )
     btn_sair.grid(row=0, column=1, padx=10)
 
     janela.mainloop()

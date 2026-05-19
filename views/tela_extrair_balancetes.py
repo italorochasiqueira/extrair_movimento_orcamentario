@@ -15,6 +15,7 @@ def abrir_tela_extrair_balancete():
     # Frame principal
     frame_principal = tk.Frame(janela, padx=20, pady=20)
     frame_principal.grid(row=0, column=0, sticky="nsew")
+    frame_principal.place(relx=0.5, rely=0.5, anchor="center")
     janela.grid_rowconfigure(0, weight=1)
     janela.grid_columnconfigure(0, weight=1)
 
@@ -25,7 +26,7 @@ def abrir_tela_extrair_balancete():
     lbl_titulo.grid(row=0, column=0, sticky="n", pady=5)
 
     # ======== Frame Período (Mês/Ano) ========
-    frame_data = tk.LabelFrame(frame_principal, text="Período (Mês/Ano)", padx=10, pady=10)
+    frame_data = tk.LabelFrame(frame_principal, text="Período (Mês/Ano)", padx=10, pady=10, font=("Arial", 10, "bold"))
     frame_data.grid(row=1, column=0, pady=10, sticky="ew")
 
     # Data Inicial
@@ -58,10 +59,32 @@ def abrir_tela_extrair_balancete():
 
         extrair_balancete_planos(usuario, senha, data_ini, data_fim)
     
-    btn_extrair = tk.Button(frame_botoes, text="Extrair", width=15, command=lambda: abrir_tela_login(login_callback))
+    btn_extrair = tk.Button(
+        frame_botoes,
+        text="Extrair",
+        width=15,
+        bg="#2e8b57",      # Verde
+        fg="white",
+        activebackground="#246b45",
+        activeforeground="white",
+        relief="flat",
+        command=lambda: abrir_tela_login(login_callback),
+        cursor="hand2"
+        )
     btn_extrair.grid(row=0, column=0, padx=10)
 
-    btn_sair = tk.Button(frame_botoes, text="Sair", width=15, command=janela.destroy)
+    btn_sair = tk.Button(
+        frame_botoes,
+        text="Sair",
+        width=15,
+        bg="#b22222",      # Vermelho
+        fg="white",
+        activebackground="#8b1a1a",
+        activeforeground="white",
+        relief="flat",
+        command=janela.destroy,
+        cursor="hand2"
+    )
     btn_sair.grid(row=0, column=1, padx=10)
 
     janela.mainloop()

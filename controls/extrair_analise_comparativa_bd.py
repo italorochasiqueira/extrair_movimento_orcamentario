@@ -146,6 +146,32 @@ def extrair_orcamento_atena_plano_bd(usuario: str, senha: str, data_ini: str, da
                 """)
                 print("[DEBUG] Plano 01 - Plano BD selecionado.")
 
+                time.sleep(2)
+                #Executar escolha das contas iniciais
+                campo_conta_inicial = wait.until(
+                    EC.presence_of_element_located((By.ID, "MainContent_MainContent_acoContaInicial_aglConta_I"))
+                )
+                campo_conta_inicial.clear()
+                campo_conta_inicial.send_keys("DESPESAS ADMINISTRATIVAS")
+                time.sleep(1)
+                campo_conta_inicial.send_keys(Keys.ARROW_DOWN)
+                campo_conta_inicial.send_keys(Keys.ENTER)
+                print("[DEBUG] Conta inicial escolhida")
+
+
+                time.sleep(2)
+                #Executar para escolher as contas finais
+                campo_conta_final = wait.until(
+                    EC.presence_of_element_located((By.ID, "MainContent_MainContent_acoContaFinal_aglConta_I"))
+                )
+                campo_conta_final.clear()
+                campo_conta_final.send_keys("7.01.006 - IMOBILIZADO - CONTINGENCIAL")
+                time.sleep(1)
+                campo_conta_final.send_keys(Keys.ARROW_DOWN)
+                campo_conta_final.send_keys(Keys.ENTER)
+                print("[DEBUG] Conta final escolhida")
+
+                time.sleep(2)
                 radio_contabil = wait.until(EC.presence_of_element_located((By.ID, "MainContent_MainContent_rblTipoRealizacao_0")))
                 radio_contabil.click()
                 print("[DEBUG] Opção 'Contábil' marcada.")

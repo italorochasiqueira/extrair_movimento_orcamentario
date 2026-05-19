@@ -7,6 +7,7 @@ import win32com.client as win32
 import win32com.client.gencache
 import shutil
 import pandas as pd
+import getpass
 from datetime import datetime
 from dateutil.relativedelta import relativedelta
 from pathlib import Path
@@ -39,10 +40,18 @@ def extrair_orcamento_atena(usuario: str, senha: str, data_ini: str, data_fim: s
     # Lista para guardar todos os dataframes
     todos_dfs = []
 
+
+    def resource_path(relative_path):
+        try:
+            base_path = sys._MEIPASS
+        except Exception:
+            base_path = Path(__file__).resolve().parent.parent
+
+        return os.path.join(base_path, relative_path)
+
     # Caminho correto para o EdgeDriver.exe
-    caminho_executavel = Path(__file__).resolve().parents[1]
-    caminho_driver = caminho_executavel / "drivers" / "msedgedriver.exe"
-    print(f'[DEBUG - Extrair Orçamento] Caminho do executável driver: {caminho_executavel}')
+    caminho_driver = resource_path("drivers\msedgedriver.exe")
+    print(f'[DEBUG - Extrair Orçamento] Caminho do executável driver: {caminho_driver}')
     
     # Inicializa o navegador Edge
     service = Service(executable_path=caminho_driver)
@@ -160,8 +169,33 @@ def extrair_orcamento_atena(usuario: str, senha: str, data_ini: str, data_fim: s
                 print("[DEBUG] Plano 96 - Gestão Administrativa selecionado")
 
                 time.sleep(2)
+                
+                #Executar escolha das contas iniciais
+                campo_conta_inicial = wait.until(
+                    EC.presence_of_element_located((By.ID, "MainContent_MainContent_acoContaInicial_aglConta_I"))
+                )
+                campo_conta_inicial.clear()
+                campo_conta_inicial.send_keys("1")
+                time.sleep(1)
+                campo_conta_inicial.send_keys(Keys.ARROW_DOWN)
+                campo_conta_inicial.send_keys(Keys.ENTER)
+                print("[DEBUG] Conta inicial escolhida")
 
+                # Habilitar esses campos quando for do ano anterior
+                time.sleep(2)
+                #Executar para escolher as contas finais
+                campo_conta_final = wait.until(
+                    EC.presence_of_element_located((By.ID, "MainContent_MainContent_acoContaFinal_aglConta_I"))
+                )
+                campo_conta_final.clear()
+                campo_conta_final.send_keys("7.01.006 - IMOBILIZADO - CONTINGENCIAL")
+                time.sleep(1)
+                campo_conta_final.send_keys(Keys.ARROW_DOWN)
+                campo_conta_final.send_keys(Keys.ENTER)
+                print("[DEBUG] Conta final escolhida")
 
+                time.sleep(2)
+                #Ação para escolher o tipo de movimento
                 if movimento == "0":
                     radio_contabil = wait.until(EC.presence_of_element_located(
                         (By.ID, "MainContent_MainContent_rblTipoRealizacao_0")
@@ -238,7 +272,7 @@ def extrair_orcamento_atena(usuario: str, senha: str, data_ini: str, data_fim: s
                 time.sleep(5)
 
                 # Processamento do arquivo Excel
-                usuario_caminho = os.getlogin()
+                usuario_caminho = getpass.getuser()
                 pasta_downloads = os.path.join("C:\\Users", usuario_caminho, "Downloads")
                 padrao_arquivo = os.path.join(pasta_downloads, "Análise Comparativa*.xlsx")
                 arquivos_encontrados = glob.glob(padrao_arquivo)
